@@ -26,15 +26,20 @@ body{
 header{  
     display: flex; 
     width: 100%;
-    height: 45px;
+    height: 40px;
     background:linear-gradient(#04285c,#4487e4);
     background-color: #04285c;
     color:#f0f5f8;    
     justify-content: flex-start;
-    align-items: center;
+    align-items: top;
     /* align-content:center; */
     flex-direction: row;
     flex-wrap: wrap;
+}
+
+input[type=radio]{
+    margin-left: 10px;
+    /* margin-right:10px; */
 }
 
 .logoimgcontainer{
@@ -42,6 +47,7 @@ header{
     /* display: inline-block; */
     width: 80px;
     height: 60px;
+    vertical-align: middle;
     /* margin: auto 0; */
 }
 
@@ -55,6 +61,7 @@ header{
     margin-left: 10px;
     border:1px solid #7db2fc;
     border-radius: 4px;
+    vertical-align: middle;
     /* float: left; */
     /* margin-top: auto;
     margin-bottom: auto;
@@ -86,6 +93,8 @@ header{
     display: inline-block;
     /* height: 30px; */
     font-size: 20px;
+    width:50Px;
+    margin-right: 30px;
     /* float: left; */
     /* margin-top: auto;
     margin-bottom: auto; */
@@ -102,6 +111,22 @@ header{
     /* align-items: center; */
     background-color: #4487e4;
     height: 40px;
+}
+
+#units{
+    position: relative;
+    font-size: 15px;
+    margin:0 0;
+    padding:0 0;
+    /* margin-left:20px; */
+    height: 20px;
+    /* width:230px; */
+    /* left:10%; */
+    background-color: #6c757d;
+    color:#7db2fc;
+    font-weight: 400;
+    /* display: inline-block;
+    align-self: flex-end; */
 }
 .search-container form{
     width: 70%;
@@ -167,7 +192,7 @@ aside{
     position: absolute;
     width:18%;
     height: 100%;
-    border:3px whitesmoke solid;
+    /* border:3px #f7f9fa groove; */
     margin-left: 10px;
     margin-top:10px;
     float: left;
@@ -234,4 +259,4 @@ aside{
 
     }
 
-}
+
