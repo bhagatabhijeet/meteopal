@@ -1,3 +1,4 @@
+
 let searchHistory = [];
 let searchHistoryPointer = 0;
 let dataObject;
@@ -14,34 +15,46 @@ let templateObject = {
     url: ""
 }
 
+let apiName={
+    // used to build url for current city data
+    current:"CURRENT", 
+    // used to build url for forecast city data with &cnt=5 (I am fetching data for only 5 days)
+    forecast:"FORECAST", 
+    // used to build url for UVIndex for a city(using lat long)
+    ultraviolet:"ULTRAVIOLET" // 
+}
+
 
 
 $(document).ready(function () {
     //page load animation - This play a small video on page load and fadeout in 3s
     $("#pageloadvid").fadeOut(3000);
 
-    
+
     $("#searchIconButton").on("click", buildSearchData);
     $("#btnLeft").on("click", showPreviousSearchedItem);
     $("#btnRight").on("click", showNextSearchedItem);
 });
 
-var apikey = '166a433c57516f51dfab1f7edaed8413';
 // var queryURL=`https://api.openweathermap.org/data/2.5/forecast/daily?q=${city}&cnt=5&appid=${apikey}`;
 
 // Eventhandler on click of searchButton and *** recent Searches buttons ***
-function buildSearchData(e){
+function buildSearchData(e) {
     event.preventDefault();
     let sVal = $("#search").val()
-    searchCity =  sVal !== "" ? sVal :$(this).data('id').replace("_",",");
+    searchCity = sVal !== "" ? sVal : $(this).data('id').replace("_", ",");
     fetchWeatherData(searchCity)
 }
 
+// Fetch all required data
 function fetchWeatherData(searchCity) {
-    // alert(searchCity);
-    // return;
-    
-    let city = $("#search").val();
+
+    //Begin Fetching All Data
+    // let city = $("#search").val();
+    alert(buildUrl(apiName.current,searchCity));
+    return;
+
+    let cityCurrentDataUrl = `${weatherAPIBaseUrl}/weather?q=${searchCity}&appid=${apikey}`;
     var queryURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}`;
     $.ajax({
         url: queryURL,
@@ -69,6 +82,43 @@ function fetchWeatherData(searchCity) {
     //     noRecordsFound();
     // });
     // addToRecentSearches(dataObject);
+}
+
+function buildUrl(api,searchCity,lat,lon) {
+    // Openweather.org base url
+    // courtesy : https://openweathermap.org/
+    
+    let weatherAPIBaseUrl = "https://api.openweathermap.org/data/2.5";
+
+    //api key used to feth the data
+    let apikey = '166a433c57516f51dfab1f7edaed8413';
+
+    if(api === "CURRENT"){
+        return  `${weatherAPIBaseUrl}/weather?q=${searchCity}&appid=${apikey}${getUnitValue()}` 
+    }
+    if(api === "FORECAST"){
+        //NOTE:- &cnt=5 is used to get data for only 5 days
+        return  `${weatherAPIBaseUrl}/forecast/daily?q=${searchCity}&cnt=5&appid=${apikey}${getUnitValue()}` 
+    }
+    if(api === "ULTRAVIOLET"){
+        //NOTE:-UVI API needs lat and lon of a location
+        return  `${weatherAPIBaseUrl}/uvi?lat=${lat}&lon=${lon}&appid=${apikey}` 
+    }   
+
+}
+
+function getUnitValue() {
+    switch ($("input[name='unitgroup']:checked").val()) {
+        case "standard":
+            return "";
+        case "metric":
+            return "&units=metric";
+        case "imperial":
+            return "&units=imperial"
+    }
+}
+function fetchCityCurrentData() {
+    //
 }
 
 
