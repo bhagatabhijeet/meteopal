@@ -26,8 +26,6 @@
             <img src="images/logo.gif" id="logoimg"></img>
         </div>
         <div id="htitle">MeteoPal</div>
-
-
     </header>
     <div id="units">
         <span>Unit :</span>
@@ -43,7 +41,7 @@
             <source src="images/hd0263.mp4">
         </video>
     </div>
-
+    <div id="messagediv"></div>
     <div class="search-container">
         <form>
             <input type="text" placeholder="Search City or Zip Code" name="search" id="search" list="optionlist" />
@@ -54,11 +52,11 @@
     </div>
     <div class="recentSearches">
         <span>Recent Searches : </span>
-        <button id="btnLeft" class="btn btn-secondary btn-sm">&lt;</button>
-
+        
         <div class="nav" id="searchHistoryNavPills">
-
+            
         </div>
+        <button id="btnLeft" class="btn btn-secondary btn-sm">&lt;</button>
         <button id="btnRight" class="btn btn-secondary btn-sm">&gt;</button>
         <!-- <span class="recentSearchItemSpan">A</span> -->
         <!--<span class="recentSearchItemSpan">B</span> -->
@@ -93,9 +91,10 @@
         </ul>
     </aside> -->
     <div class="container">
-        <div class="row">
+        <div class="row" id="cityInfo">
 
-            This is for the city info
+
+           
         </div>
         <hr />
         <div class="row">

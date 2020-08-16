@@ -129,8 +129,10 @@ input[type=radio]{
     align-self: flex-end; */
 }
 .search-container form{
+    position: relative;
     width: 70%;
-    margin-left: 30%;
+    left:50%;
+    margin-left: -25%;
     margin-right: auto;
     /* position: relative; */
 }
@@ -178,7 +180,7 @@ input[type=radio]{
     position: absolute;
     top:100px; */
 }
-.recentSearchItemSpan{
+/* .recentSearchItemSpan{
     width:400px;
     display: inline-block;
     border:1px solid white;
@@ -186,6 +188,10 @@ input[type=radio]{
 
 .nodisplaySpan{
     display: none;
+} */
+#btnLeft,#btnRight{
+    margin-left:5px;
+    margin-right:5px;
 }
 
 aside{
@@ -227,6 +233,22 @@ aside{
    width:100% !important;
    /* margin:auto auto; */
    /* margin-top:5px; */
+}
+
+#messagediv{
+    width: 50%;
+    height: 60px;
+    background-color: #6c757d;
+    color:brown;
+    display: none;
+    position: absolute;
+    top:90px;    
+    /* margin-right: auto; */
+    text-align: center;
+    left:50%;
+    margin-left: -25%; 
+    font-weight: 400;
+
 }
 /*
 .wrapper {
