@@ -1,21 +1,25 @@
-
 let searchHistory = [];
 let searchHistoryPointer = 0;
 let unit={};
 // This object's clone will be used to create actual data.
 let dataObject = {
-    cityId: "",
-    cityName: "",
+    id: "",
+    fullname:"",
+    name: "",
     iconUrl: "",
     temp: "",
     pressure: "",
     humidity: "",
     windSpeed: "",
     uv: "",
-    coord: { lat: 0, long: 0 },
+    coord: { lat: 0, lon: 0 },
     unit: "",
-    url: ""
+    url: "",
+    list:[]
 }
+// let dataObject={};
+// dataObject = Object.assign(dataObject,TemplateObject);
+
 
 let apiName = {
     // used to build url for current city data
@@ -71,10 +75,86 @@ function fetchWeatherData(searchCity) {
         },
         success: function (data) {
             //if success store the current city data in dataObject
-            storeCurrentCityData(data,this.url)
+            storeCurrentCityData(data,this.url);
+            
         }
-    }).then(function () {
-        buildFullCityName(dataObject);
+    }) 
+    // then get the full city name like 'San Francisco, CA, US. use city.list.json for the same
+    .then(function (data) {
+        // buildFullCityName(data);
+        $.ajax({
+            url: "scripts/city.list.json",
+            method: 'GET',
+            // async: false,
+            success: function (cityList) {
+    
+                let cityObject = cityList.find(elment => elment.id === data.id);
+                // let cityObject = cityList[index];
+                if (cityObject.state === "") {
+                    dataObject.fullname = `${cityObject.name},${cityObject.country}`;
+                    // returnVal= `${cityObject.name},${cityObject.country}`;
+                }
+                else {
+                    dataObject.fullname = `${cityObject.name},${cityObject.state},${cityObject.country}`;
+                    // returnVal= `${cityObject.name},${cityObject.state},${cityObject.country}`;
+                }
+                // console.log("build full name completed");
+            }
+        }).then(function(){
+            // getUVI(dataObject.fullname,dataObject.coord.lat,dataObject.coord.lon);
+            $.ajax({
+                url: buildUrl(apiName.ultraviolet, dataObject.fullname, dataObject.coord.lat, dataObject.coord.lon),
+                method: 'GET',        
+                processData:false,        
+                statusCode: {
+                    404: function () {
+                        noRecordsFound();
+                    }
+                },
+                success: function (data) {
+                    dataObject.uv=data.value;
+                }
+            }).then(function(){
+                $.ajax({
+                    url: buildUrl(apiName.forecast, dataObject.fullname),
+                    method: 'GET',        
+                    processData:false,        
+                    statusCode: {
+                        404: function () {
+                            noRecordsFound();
+                        }
+                    },
+                    success: function (data) {
+                        //if success store the forecast city data in dataObject
+                        // storeCurrentCityData(data,this.url)
+                        data.list.forEach(element => {
+                            // console.log(element.dt);
+                            let dt=new Date(parseInt(element.dt)*1000);
+                            dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' }) 
+                            element.humanreadabledate=dateTimeFormat.format(dt);
+                            dataObject.list.push(element);
+                        });
+                        // console.log(data);
+                    }
+                });
+            });
+        });
+    }) 
+    // then get Ultraviolet Index
+    // .done(function(){
+        
+    //     getUVI(dataObject.fullname,dataObject.coord.lat,dataObject.coord.lon);
+    //     // alert("now calling 5dayforecast")
+    // })
+    // then get the 5 day forecast
+    // .done(function(){
+    //     // alert("about to get into 5 day forecast");
+    //     // console.log(dataObject);
+    //     console.log("full name :" + dataObject.fullname)
+    //     getFiveDayForecast(dataObject.fullname);
+    // })
+    .done(function(){
+        console.log(dataObject);
     });
     // .then(buildFullCityName)
     //     .then(addToRecentSearches);
@@ -115,8 +195,8 @@ function buildUrl(api, searchCity, lat, lon) {
         return `${weatherAPIBaseUrl}/weather?q=${searchCity}&appid=${apikey}${unit.queryString}`
     }
     if (api === "FORECAST") {
-        //NOTE:- &cnt=5 is used to get data for only 5 days
-        return `${weatherAPIBaseUrl}/forecast/daily?q=${searchCity}&cnt=5&appid=${apikey}${unit.queryString}`
+        //NOTE:- &cnt=6 is used to get data for only 6 days but we'll use index from 1-5
+        return `${weatherAPIBaseUrl}/forecast/daily?q=${searchCity}&cnt=6&appid=${apikey}${unit.queryString}`
     }
     if (api === "ULTRAVIOLET") {
         //NOTE:-UVI API needs lat and lon of a location
@@ -126,6 +206,7 @@ function buildUrl(api, searchCity, lat, lon) {
 }
 /**
  * @description utility function to get the value of units as specified by user
+ * @returns object with 2 keys namely name and queryString 
  */
 function getUnit() {
     switch ($("input[name='unitgroup']:checked").val()) {
@@ -137,19 +218,69 @@ function getUnit() {
             return {name:"imperial",queryString:"&units=imperial"};
     }
 }
+
+
 function storeCurrentCityData(data,url) {
-    console.log(data);
+    // console.log(data);
     dataObject.id = data.id;
-    dataObject.cityName = data.name;
+    dataObject.name = data.name;
     dataObject.temp = data.main.temp;
     dataObject.pressure = data.main.pressure;
     dataObject.humidity = data.main.humidity;
     dataObject.windSpeed = data.wind.speed;
     dataObject.url=url;
     dataObject.unit=unit.name;
-    console.log(dataObject);
+    dataObject.coord.lat=data.coord.lat;
+    dataObject.coord.lon=data.coord.lon;
+    dataObject.iconUrl="http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
+    // dataObject.fullname=buildFullCityName(data);
+    // console.log(dataObject);
+    console.log("storing completed");
+    // buildFullCityName(data);
 }
 
+function getUVI(searchCity,lat,lon){
+    $.ajax({
+        url: buildUrl(apiName.ultraviolet, searchCity, lat, lon),
+        method: 'GET',        
+        processData:false,        
+        statusCode: {
+            404: function () {
+                noRecordsFound();
+            }
+        },
+        success: function (data) {
+            dataObject.uv=data.value;
+        }
+    });
+}
+
+function getFiveDayForecast(searchCity){
+    // alert(searchCity);
+    $.ajax({
+        url: buildUrl(apiName.forecast, searchCity),
+        method: 'GET',        
+        processData:false,        
+        statusCode: {
+            404: function () {
+                noRecordsFound();
+            }
+        },
+        success: function (data) {
+            //if success store the forecast city data in dataObject
+            // storeCurrentCityData(data,this.url)
+            data.list.forEach(element => {
+                // console.log(element.dt);
+                let dt=new Date(parseInt(element.dt)*1000);
+                dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' }) 
+                element.humanreadabledate=dateTimeFormat.format(dt);
+                dataObject.list.push(element);
+            });
+            // console.log(data);
+        }
+    });
+    
+}
 
 function addToRecentSearches(data) {
     //build and Add one more property named fullCityName to the object
@@ -193,21 +324,27 @@ function buildFullCityName(data) {
     //     async: false
     // });
     // dataObject = data;
+    let returnVal="";
     $.ajax({
         url: "scripts/city.list.json",
         method: 'GET',
         // async: false,
         success: function (cityList) {
 
-            let cityObject = cityList.find(elment => elment.id === dataObject.id);
+            let cityObject = cityList.find(elment => elment.id === data.id);
             // let cityObject = cityList[index];
             if (cityObject.state === "") {
-                dataObject.fullname = `${cityObject.name},${cityObject.country}`;
+                // dataObject.fullname = `${cityObject.name},${cityObject.country}`;
+                returnVal= `${cityObject.name},${cityObject.country}`;
             }
             else {
-                dataObject.fullname = `${cityObject.name},${cityObject.state},${cityObject.country}`;
+                // dataObject.fullname = `${cityObject.name},${cityObject.state},${cityObject.country}`;
+                returnVal= `${cityObject.name},${cityObject.state},${cityObject.country}`;
             }
+            // console.log("build full name completed");
         }
+    }).then(function(){
+        return returnVal;
     });
     // return dataObject;
 }
