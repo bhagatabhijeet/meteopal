@@ -17,16 +17,18 @@
     <!-- main style css -->
     <link rel="stylesheet" href="styles/main.css">
 
-    <title>MeteoPal</title>
+    <title>MeteoPal - Weather Dashboard</title>
 </head>
 
 <body>
+    <!-- header for the main heading -->
     <header>
         <div class="logoimgcontainer">
             <img src="images/logo.gif" id="logoimg"></img>
         </div>
         <div id="htitle">MeteoPal</div>
     </header>
+    <!-- this container is used to get the unit preference from user -->
     <div id="units">
         <span>Unit :</span>
         <input type="radio" id="standard" name="unitgroup" value="standard">
@@ -36,12 +38,15 @@
         <input type="radio" id="imperial" name="unitgroup" value="imperial" checked='true'>
         <label for="imperial">Imperial</label>
     </div>
+    <!-- plays a small 3 second video on page load -->
     <div id="pageloadvid">
         <video muted autoplay width="100%">
             <source src="images/hd0263.mp4">
         </video>
     </div>
+    <!-- used to convey message like 'no records found' -->
     <div id="messagediv"></div>
+    <!-- get the search inputs from user -->
     <div class="search-container">
         <form>
             <input type="search" placeholder="Search City or Zip Code" name="search" id="search" list="optionlist" />
@@ -50,51 +55,25 @@
             </datalist>
         </form>
     </div>
+    <!-- top nav recent searches. Very useful for mobile screen  as i hide the left aside on mobile screens -->
     <div class="recentSearches">
-        <span>Recent Searches : </span>
-        
-        <div class="nav" id="searchHistoryNavPills">
-            
+        <span>Recent Searches : </span>        
+        <div class="nav" id="searchHistoryNavPills">            
         </div>
-        <button id="btnLeft" class="btn btn-secondary btn-sm">&lt;</button>
-        <button id="btnRight" class="btn btn-secondary btn-sm">&gt;</button>
-        <!-- <span class="recentSearchItemSpan">A</span> -->
-        <!--<span class="recentSearchItemSpan">B</span> -->
-
-        <!-- <button>Clear Recent Searches</button> -->
+        <!-- button used to navigate through the search items -->
+        <button id="btnRight" class="btn btn-secondary btn-sm">&gt;</button>       
     </div>
+    <!-- aside div for the search items -->
     <aside>
-
         <nav class="nav flex-column" id="searchHistoryNav">
-            <!-- <div></div> -->
-            <!-- <a class="nav-link active" href="#">Aurangabad, Maharashtra, India</a>
-            <a class="nav-link active" href="#">Active</a>
-            <a class="nav-link" href="#">Link</a>
-            <a class="nav-link" href="#">Link</a>
-            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a> -->
+           <!-- contents added dynamically -->
         </nav>
-
     </aside>
-    <!-- <aside>
-        
-        <ul>
-            <li>One</li>
-            <li>two</li>
-            <li>three</li>
-            <li>four</li>
-            <li>five</li>
-            <li>six</li>
-            <li>seven</li>
-            <li>eight</li>
-            <li>nine</li>
-            <li>ten</li>
-        </ul>
-    </aside> -->
+    <!-- main container for the city and forcast info contains 2 rows -->
     <div class="container">
         <div class="row">
             <div class="card" style="width:100%" id="cityInfo">
-                <div class="card-header" id="cityNameDateImage">
-                  
+                <div class="card-header" id="cityNameDateImage">                  
                 </div>
                 <ul class="list-group list-group-flush">
                   <li class="list-group-item"><span>Temperature :</span><span id="cityTemp"></span></li>
@@ -102,16 +81,13 @@
                   <li class="list-group-item"><span>Humidity :</span><span id="cityHumidity"></span></li>
                   <li class="list-group-item"><span>UVI :</span><span id="cityUV"></li>
                 </ul>
-              </div>
-
-           
+              </div>           
         </div>
         <hr />
         <div class="row">
+            <!-- container for the forecast cards -->
             <div id="forecastCardsContainer">
-
             </div>
-
         </div>
     </div>
 
