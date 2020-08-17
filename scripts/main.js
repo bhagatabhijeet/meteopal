@@ -16,24 +16,24 @@ let dataObject = {
     coord: { lat: 0, lon: 0 },
     unit: "",
     url: "",
-    humanreadabledate:"",
+    humanreadabledate: "",
     list: [],
-    reset:function(){
-        this.fullname= "";
-        this.id= ""
-        this.name= "";
-        this.iconUrl= "";
-        this.temp= "";
-        this.pressure= "";
-        this.humidity= "";
-        this.windSpeed= "";
-        this.uv= "";
-        this.coord.lat=0;
-        this.coord.lon=0;
-        this.unit= "";
-        this.url= "";
-        this.humanreadabledate="";
-        this.list=[];
+    reset: function () {
+        this.fullname = "";
+        this.id = ""
+        this.name = "";
+        this.iconUrl = "";
+        this.temp = "";
+        this.pressure = "";
+        this.humidity = "";
+        this.windSpeed = "";
+        this.uv = "";
+        this.coord.lat = 0;
+        this.coord.lon = 0;
+        this.unit = "";
+        this.url = "";
+        this.humanreadabledate = "";
+        this.list = [];
     }
 }
 
@@ -56,12 +56,15 @@ $(document).ready(function () {
 
     $("#btnLeft").hide();
     $("#btnRight").hide();
+
     //event handlers
     $("#searchIconButton").on("click", buildSearchData);
     $("#btnLeft").on("click", showPreviousSearchedItem);
     $("#btnRight").on("click", showNextSearchedItem);
-    let lastSearchedCity =localStorage.getItem("meteopalLastSearchCity");
-    if(lastSearchedCity !== null){
+
+    // on page load get the city from local storage and search
+    let lastSearchedCity = localStorage.getItem("meteopalLastSearchCity");
+    if (lastSearchedCity !== null) {
         unit = getUnit();
         fetchWeatherData(lastSearchedCity);
     }
@@ -74,15 +77,17 @@ function buildSearchData(e) {
     let sVal = $("#search").val();
     //clear search input
     $("#search").val("");
+
     searchCity = sVal !== "" ? sVal : $(this).data('id').replaceAll("_", ",");
     unit = getUnit();
     fetchWeatherData(searchCity)
 }
 
-// Fetch all required data
+// Main function to fetch all required data
 function fetchWeatherData(searchCity) { // Start of fetchWeatherData
     dataObject.reset();
     let queryURL = "";
+
     //ajax call for current day
     $.ajax({
         url: buildUrl(apiName.current, searchCity),
@@ -118,6 +123,7 @@ function fetchWeatherData(searchCity) { // Start of fetchWeatherData
                     }
                 }
             }).then(function (cityList) {
+                // this nested call is to get the Ultraviolet Index of searched city
                 $.ajax({
                     url: buildUrl(apiName.ultraviolet, dataObject.fullname, dataObject.coord.lat, dataObject.coord.lon),
                     method: 'GET',
@@ -145,19 +151,21 @@ function fetchWeatherData(searchCity) { // Start of fetchWeatherData
                             //on success store the forecast city data in dataObject
 
                             data.list.forEach(element => {
+
                                 //convert the openweather date into human readable date    
                                 let dt = new Date(parseInt(element.dt) * 1000);
                                 dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' })
                                 element.humanreadabledate = dateTimeFormat.format(dt);
+
                                 // push the array to the dataObject
                                 dataObject.list.push(element);
                             });
                         }
                     })
-                        // At this point all data fetch is completed.
-                        // now continue with UI rendering
+                        // **********    At this point all data fetch is completed *************
+                        // **********    now continue with UI rendering  ***********************
                         .done(function () {
-                            localStorage.setItem("meteopalLastSearchCity",dataObject.fullname);
+                            localStorage.setItem("meteopalLastSearchCity", dataObject.fullname);
                             addToRecentSearches();
                             showCityInfo();
                             showForeCast();
@@ -213,7 +221,7 @@ function getUnit() {
     }
 }
 
-
+// Utility function to store all data in dataObject
 function storeCurrentCityData(data, url) {
     dataObject.id = data.id;
     dataObject.name = data.name;
@@ -232,293 +240,196 @@ function storeCurrentCityData(data, url) {
 }
 
 function addToRecentSearches() {
-    //build and Add one more property named fullCityName to the object
-    //makes use of *** city.list.json *** in scripts directory
-    // buildFullCityName(data);
-    // data = dataObject;
-    // alert(data.fullname);
 
-    //add to array 
+    //add the city to array 
     let idx = searchHistory.findIndex(e => e.name === dataObject.fullname);
     if (idx === -1) {
         searchHistory.unshift({ name: dataObject.fullname, icon: dataObject.iconUrl });
     }
-    // if(!searchHistory.includes(dataObject.fullname)){   
-    //     searchHistory.unshift(dataObject.fullname);
-    // }
     else {
         searchHistory.splice(idx, 1);
         searchHistory.unshift({ name: dataObject.fullname, icon: dataObject.iconUrl });
-        // return;
     }
 
-    //add to optionlist
-
-    // let opt = $("<Option>").text(dataObject.fullname);
-    // $("#optionlist").append(opt);
-
-    //add to aside
+    
+    //add  the seached city as button to aside. Ensure proper data-id and id attributes are given
     $("#searchHistoryNav").empty();
     searchHistory.forEach(element => {
         let idText = element.name.split(",").join("_");
         $cityBtn = $("<button>").html(`<span><img style='height:35px' src='${element.icon}'></img></span><span>${element.name}</span>`);
         $cityBtn.addClass("btn btn-primary btn-sm text-left");
         $cityBtn.attr("data-id", idText);
-        $cityBtn.on("click",historySearchButtonClicked)
+        $cityBtn.on("click", historySearchButtonClicked)
 
         let dx = $("<div>");
         dx.attr("id", "div_" + idText);
         dx.addClass("SearchHistorydiv");
         dx.append($cityBtn);
-        $btnRemove =$("<button>").html('<i class="fa fa-trash"></i>').addClass("btn btn-default removebtn").attr("data-id", idText);
-        $btnRemove.on("click",removeDiv)
+        $btnRemove = $("<button>").html('<i class="fa fa-trash"></i>').addClass("btn btn-default removebtn").attr("data-id", idText);
+        $btnRemove.on("click", removeDiv)
         dx.append($btnRemove);
 
         dx.hide().appendTo("#searchHistoryNav").fadeIn(600);
 
-
     });
-    // let idText = dataObject.fullname.replace(",", "_");
-    // $cityBtn = $("<button>").html(`<span><img style='height:35px' src='${dataObject.iconUrl}'></img></span><span>${dataObject.fullname}</span>`);
-    // $cityBtn.addClass("btn btn-primary btn-sm text-left");
-    // $cityBtn.attr("data-id", idText);
-
-    // let dx = $("<div>");
-    // dx.attr("id", "div_" + idText);
-    // dx.addClass("SearchHistorydiv");
-    // dx.append($cityBtn);
-    // dx.append($("<button>").html('<i class="fa fa-trash"></i>').addClass("btn btn-default removebtn").attr("data-id", idText));
-
-    // dx.hide().prependTo("#searchHistoryNav").fadeIn(2000);
-
-
-    //add to nav pills
-    // $("#searchHistoryNavPills").empty();
-    // $cityBtnPill = $("<button>").html(`<span><img style='height:35px' src='${dataObject.iconUrl}'></img></span><span>${dataObject.fullname}</span>`);
-    // $cityBtnPill.addClass("btn btn-primary btn-sm");
-    // $cityBtnPill.attr("data-id", idText);
-
-    // $cityBtnPill.hide().prependTo("#searchHistoryNavPills").fadeIn(2000);
+    
+    // Adding the searched city as Pill button to recent searches on top
     let idText = searchHistory[0].name.split(",").join("_");
     $("#searchHistoryNavPills").empty();
     $cityBtnPill = $("<button>").html(`<span><img style='height:35px' src='${searchHistory[0].icon}'></img></span><span>${searchHistory[0].name}</span>`);
     $cityBtnPill.addClass("btn btn-primary btn-sm");
     $cityBtnPill.attr("data-id", idText);
-    $cityBtnPill.attr("id", "btnPill_"+idText);
-    $cityBtnPill.on("click",historySearchButtonClicked);
+    $cityBtnPill.attr("id", "btnPill_" + idText);
+    $cityBtnPill.on("click", historySearchButtonClicked);
     $cityBtnPill.hide().prependTo("#searchHistoryNavPills").fadeIn(600);
 
     if (searchHistory.length > 1) {
         $("#btnRight").show();
     }
-    else{
+    else {
         $("#btnRight").hide();
     }
-
 }
 
-function removeDiv(event){
+
+// Event handler called when user click on the remove/bin icon button next to the searhed city button.
+function removeDiv(event) {
     event.stopPropagation();
-    divid=$(this).data().id
-    // divid = "div_"+ divid;
-    // alert(divid);
-    // $("#"+ divid).css("background-color","red");
-    $("#div_"+ divid).remove();
-    $("#btnPill_"+ divid).remove();
-    let idx = searchHistory.findIndex(e=> e.name === divid.split("_").join(","))
+    divid = $(this).data().id    
+    $("#div_" + divid).remove();
+    $("#btnPill_" + divid).remove();
+    let idx = searchHistory.findIndex(e => e.name === divid.split("_").join(","))
     {
-        searchHistory.splice(idx,1);
-        if(searchHistory.length < 1){
+        searchHistory.splice(idx, 1);
+        if (searchHistory.length < 1) {
             $("#btnRight").hide()
             $("#forecastCardsContainer").empty();
-            $("#cityInfo").css("display","none");
+            $("#cityInfo").css("display", "none");
             return;
         }
     }
     idx++;
-    if(idx >= searchHistory.length){
-        idx=0;
+    if (idx >= searchHistory.length) {
+        idx = 0;
     }
     unit = getUnit();
     fetchWeatherData(searchHistory[idx].name);
-    
+
 }
 
-function historySearchButtonClicked(event){
+// Event handler function called when user clicks on the  button in the recent searches
+function historySearchButtonClicked(event) {
     event.stopPropagation();
-    divid=$(this).data().id;
-    let idx = searchHistory.findIndex(e=> e.name === divid.split("_").join(","));
+    divid = $(this).data().id;
+    let idx = searchHistory.findIndex(e => e.name === divid.split("_").join(","));
     unit = getUnit();
     fetchWeatherData(searchHistory[idx].name);
 }
 
-function showPreviousSearchedItem() {
-    searchHistoryPointer++;
-    if (searchHistoryPointer === searchHistory.length - 1) {
-        $("#btnLeft").hide();
-    }
-    if (searchHistoryPointer > 0) {
-        $("#btnRight").show();
-    }
-
-    $("#searchHistoryNavPills").empty();
-    unit = getUnit();
-    fetchWeatherData(searchHistory[searchHistoryPointer].name);
-    // searchHistoryPointer=0;
-    // let idText = dataObject.fullname.replace(",", "_");
-    // $cityBtnPill = $("<button>").html(`<span><img style='height:35px' src='${dataObject.iconUrl}'></img></span><span>${dataObject.fullname}</span>`);
-    // $cityBtnPill.addClass("btn btn-primary btn-sm");
-    // $cityBtnPill.attr("data-id", idText);
-    // $cityBtnPill.hide().prependTo("#searchHistoryNavPills").fadeIn(1000);
-
-}
+//Event handler function called when user click on the right arrow button in the top recent searches bar
 function showNextSearchedItem() {
+    searchHistoryPointer++;
 
-// trying 
-searchHistoryPointer++;
-    // if (searchHistoryPointer === searchHistory.length - 1) {
-    //     $("#btnLeft").hide();
-    // }
-    // if (searchHistoryPointer > 0) {
-    //     $("#btnRight").show();
-    // }
-    if(searchHistoryPointer > (searchHistory.length - 1))
-    {
-        searchHistoryPointer=1;        
+    if (searchHistoryPointer > (searchHistory.length - 1)) {
+        searchHistoryPointer = 1;
     }
 
     $("#searchHistoryNavPills").empty();
     unit = getUnit();
     fetchWeatherData(searchHistory[searchHistoryPointer].name);
-
-
-//trying above
-
- /* recently commented   
-    searchHistoryPointer--;
-    if (searchHistoryPointer === 0) {
-        // return;
-        $("#btnRight").hide();
-    }
-    $("#searchHistoryNavPills").empty();
-    unit = getUnit();
-    fetchWeatherData(searchHistory[searchHistoryPointer].name);
-*/
-    // $cityRecent = $("<button>").html("<span><img style='height:25px' src='http://openweathermap.org/img/wn/" + searchHistory[searchHistoryPointer].weather[0].icon + "@2x.png'></img></span><span>" + searchHistory[searchHistoryPointer].name + "</span>");
-    // $cityRecent.addClass("btn btn-primary btn-sm");
-
-
-    // $("#searchHistoryNavPills").prepend($cityRecent).show(1000);
-
 }
-function showCityInfo(){
-    $("#cityNameDateImage").html("<img src='"+ dataObject.iconUrl + "'/> " + " <strong>" + dataObject.fullname + " ("+ dataObject.humanreadabledate +")</strong>");
+
+
+//function to show the City Info data in the Top row of main container
+function showCityInfo() {
+    $("#cityNameDateImage").html("<img src='" + dataObject.iconUrl + "'/> " + " <strong>" + dataObject.fullname + " (" + dataObject.humanreadabledate + ")</strong>");
     $("#cityTemp").html(dataObject.temp + getUnitValue("temp"));
     $("#cityWind").html(dataObject.windSpeed + getUnitValue("speed"));
-    $("#cityHumidity").html(dataObject.humidity + "%")
-    if(parseFloat(dataObject.uv)<=2){
-        $("#cityUV").css("background-color","green");
+    $("#cityHumidity").html(dataObject.humidity + "%");
+
+    // ****************   DIFFERENT COLOR CODES FOR UVI ****************
+    if (parseFloat(dataObject.uv) <= 2) {
+        $("#cityUV").css("background-color", "green");
     }
-    if(parseFloat(dataObject.uv)>2 && parseFloat(dataObject.uv)<=5){
-        $("#cityUV").css("background-color","yellow");
+    if (parseFloat(dataObject.uv) > 2 && parseFloat(dataObject.uv) <= 5) {
+        $("#cityUV").css("background-color", "yellow");
     }
-    if(parseFloat(dataObject.uv)>5 && parseFloat(dataObject.uv)<=7){
-        $("#cityUV").css("background-color","orange");
+    if (parseFloat(dataObject.uv) > 5 && parseFloat(dataObject.uv) <= 7) {
+        $("#cityUV").css("background-color", "orange");
     }
-    if(parseFloat(dataObject.uv)>7 && parseFloat(dataObject.uv)<=10){
-        $("#cityUV").css("background-color","red");
+    if (parseFloat(dataObject.uv) > 7 && parseFloat(dataObject.uv) <= 10) {
+        $("#cityUV").css("background-color", "red");
     }
-    if(parseFloat(dataObject.uv)>10){
-        $("#cityUV").css("background-color","purple");
+    if (parseFloat(dataObject.uv) > 10) {
+        $("#cityUV").css("background-color", "purple");
     }
 
     $("#cityUV").html(dataObject.uv)
-    $("#cityInfo").css("display","block");
-    
-   
+    $("#cityInfo").css("display", "block");
 }
 
-function getUnitValue(param){
-    if(param.toUpperCase() === "SPEED"){
-        if(dataObject.unit==="standard" || dataObject.unit==="metric" )
-        {
+// Utility function to get the unit strings This is to keep the code DRY and avoid repeating the following in every function.
+function getUnitValue(param) {
+    if (param.toUpperCase() === "SPEED") {
+        if (dataObject.unit === "standard" || dataObject.unit === "metric") {
             return " meter/sec";
         }
-        else
-        {
+        else {
             return " miles/hour";
         }
     }
-    if(param.toUpperCase() === "TEMP"){
-        if(dataObject.unit==="standard")
-        {
+    if (param.toUpperCase() === "TEMP") {
+        if (dataObject.unit === "standard") {
             return " &deg;K";
         }
-        if(dataObject.unit==="metric")
-        {
+        if (dataObject.unit === "metric") {
             return " &deg;C";
         }
-        if(dataObject.unit==="imperial")
-        {
+        if (dataObject.unit === "imperial") {
             return " &deg;F";
         }
     }
 }
 
-function showForeCast(){
-//    $("#day1").remove();
-//    $("#day2").remove();
-//    $("#day3").remove();
-//    $("#day4").remove();
-//    $("#day5").remove();
+
+//function to show the forecast in the bottom row of the main container. I create bootstrap card for each day
+function showForeCast() {    
     $("#forecastCardsContainer").empty();
-    
-    for(let i=1;i<dataObject.list.length;i++){
-        let d =$("<div>");
+
+    for (let i = 1; i < dataObject.list.length; i++) {
+        let d = $("<div>");
         d.addClass("card smallcard");
-        d.attr("id","day"+i);
-        
-        let $img=$("<img>")
+        d.attr("id", "day" + i);
+
+        let $img = $("<img>")
         $img.addClass("card-img-top");
-        $img.attr("src","http://openweathermap.org/img/wn/" + dataObject.list[i].weather[0].icon + "@2x.png");
-        
-        $cardbody=$("<div>");
+        $img.attr("src", "http://openweathermap.org/img/wn/" + dataObject.list[i].weather[0].icon + "@2x.png");
+
+        $cardbody = $("<div>");
         $cardbody.addClass("card-body");
 
-        $h5=$("<h5>");
+        $h5 = $("<h5>");
         $h5.addClass("card-title");
         $h5.html(dataObject.list[i].humanreadabledate);
 
-        $p1=$("<p>");
+        $p1 = $("<p>");
         $p1.addClass("card-text");
         $p1.html("Temperature : " + dataObject.list[i].temp.day + getUnitValue("temp"));
 
-        $p2=$("<p>");
+        $p2 = $("<p>");
         $p2.addClass("card-text");
         $p2.html("Humidity : " + dataObject.list[i].humidity + "%");
 
-        $p3=$("<p>");
+        $p3 = $("<p>");
         $p3.addClass("card-text");
         $p3.html("Wind Speed : " + dataObject.list[i].speed + getUnitValue("speed"));
 
-        $cardbody.append($h5,$p1,$p2,$p3);
-        d.append($img,$cardbody);
+        $cardbody.append($h5, $p1, $p2, $p3);
+        d.append($img, $cardbody);
 
         $("#forecastCardsContainer").append(d);
 
-    }
-    // dataObject.list.forEach(element=>{
-    //     let $div = $("<div>");
-    //     $div.html('<div class="card" style="width: 7rem;">' +
-    //     '<img class="card-img-top" src="..." alt="Card image cap">'+
-    //     '<div class="card-body">'+
-    //       '<h5 class="card-title">Card title</h5>'+
-    //       '<p class="card-text">Some quick example text to build on the card title and make up the bulk of the cards content.</p>'+
-    //       '<a href="#" class="btn btn-primary">Go somewhere</a>' +
-    //     '</div>'+
-    //   '</div>');
-    //     $("#forecastCardsContainer").append($div);
-    // })
+    }    
 }
 
 //Utility function to be shown when there are no records found.
