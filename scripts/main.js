@@ -1,10 +1,11 @@
 let searchHistory = [];
 let searchHistoryPointer = 0;
-let unit={};
-// This object's clone will be used to create actual data.
+let unit = {};
+
+// The main object to store all required data
 let dataObject = {
     id: "",
-    fullname:"",
+    fullname: "",
     name: "",
     iconUrl: "",
     temp: "",
@@ -15,59 +16,50 @@ let dataObject = {
     coord: { lat: 0, lon: 0 },
     unit: "",
     url: "",
-    list:[]
+    list: []
 }
-// let dataObject={};
-// dataObject = Object.assign(dataObject,TemplateObject);
 
-
+// apiName object acts like enum. This is created just to ease typing and avoid string mistakes
 let apiName = {
     // used to build url for current city data
     current: "CURRENT",
+
     // used to build url for forecast city data with &cnt=5 (I am fetching data for only 5 days)
     forecast: "FORECAST",
-    // used to build url for UVIndex for a city(using lat long)
-    ultraviolet: "ULTRAVIOLET" // 
-}
 
+    // used to build url for UVIndex for a city(using lat long)
+    ultraviolet: "ULTRAVIOLET" 
+}
 
 
 $(document).ready(function () {
     //page load animation - This play a small video on page load and fadeout in 3s
     $("#pageloadvid").fadeOut(3000);
 
-
+    //event handlers
     $("#searchIconButton").on("click", buildSearchData);
     $("#btnLeft").on("click", showPreviousSearchedItem);
     $("#btnRight").on("click", showNextSearchedItem);
 });
 
-// var queryURL=`https://api.openweathermap.org/data/2.5/forecast/daily?q=${city}&cnt=5&appid=${apikey}`;
 
-// // Eventhandler on click of searchButton and *** recent Searches buttons ***
+// Eventhandler on click of searchButton and *** recent Searches buttons ***
 function buildSearchData(e) {
     event.preventDefault();
     let sVal = $("#search").val()
     searchCity = sVal !== "" ? sVal : $(this).data('id').replace("_", ",");
-    unit=getUnit();
+    unit = getUnit();
     fetchWeatherData(searchCity)
 }
 
 // Fetch all required data
-function fetchWeatherData(searchCity) {
-
-    //Begin Fetching All Data
-    // let city = $("#search").val();
-    // alert(buildUrl(apiName.current,searchCity));
-    // return;
-
-    // let queryURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}`;
+function fetchWeatherData(searchCity) { // Start of fetchWeatherData
     let queryURL = "";
     //ajax call for current day
     $.ajax({
         url: buildUrl(apiName.current, searchCity),
-        method: 'GET',        
-        processData:false,        
+        method: 'GET',
+        processData: false,
         statusCode: {
             404: function () {
                 noRecordsFound();
@@ -75,105 +67,76 @@ function fetchWeatherData(searchCity) {
         },
         success: function (data) {
             //if success store the current city data in dataObject
-            storeCurrentCityData(data,this.url);
-            
+            storeCurrentCityData(data, this.url);
+
         }
-    }) 
-    // then get the full city name like 'San Francisco, CA, US. use city.list.json for the same
-    .then(function (data) {
-        // buildFullCityName(data);
-        $.ajax({
-            url: "scripts/city.list.json",
-            method: 'GET',
-            // async: false,
-            success: function (cityList) {
-    
-                let cityObject = cityList.find(elment => elment.id === data.id);
-                // let cityObject = cityList[index];
-                if (cityObject.state === "") {
-                    dataObject.fullname = `${cityObject.name},${cityObject.country}`;
-                    // returnVal= `${cityObject.name},${cityObject.country}`;
-                }
-                else {
-                    dataObject.fullname = `${cityObject.name},${cityObject.state},${cityObject.country}`;
-                    // returnVal= `${cityObject.name},${cityObject.state},${cityObject.country}`;
-                }
-                // console.log("build full name completed");
-            }
-        }).then(function(){
-            // getUVI(dataObject.fullname,dataObject.coord.lat,dataObject.coord.lon);
+    })
+        // then get the full city name like 'San Francisco, CA, US. use city.list.json for the same
+        .then(function (data) {
+            // note this nested ajax call
             $.ajax({
-                url: buildUrl(apiName.ultraviolet, dataObject.fullname, dataObject.coord.lat, dataObject.coord.lon),
-                method: 'GET',        
-                processData:false,        
-                statusCode: {
-                    404: function () {
-                        noRecordsFound();
+                //local json file. courtesy : https://openweathermap.org/
+                url: "scripts/city.list.json",
+                method: 'GET',
+                //on success add the full city name to the dataObject
+                success: function (cityList) {
+                    let cityObject = cityList.find(elment => elment.id === data.id);
+
+                    if (cityObject.state === "") {
+                        dataObject.fullname = `${cityObject.name},${cityObject.country}`;
                     }
-                },
-                success: function (data) {
-                    dataObject.uv=data.value;
+                    else {
+                        dataObject.fullname = `${cityObject.name},${cityObject.state},${cityObject.country}`;
+                    }
                 }
-            }).then(function(){
+            }).then(function () {
+                // get the UVI index
                 $.ajax({
-                    url: buildUrl(apiName.forecast, dataObject.fullname),
-                    method: 'GET',        
-                    processData:false,        
+                    url: buildUrl(apiName.ultraviolet, dataObject.fullname, dataObject.coord.lat, dataObject.coord.lon),
+                    method: 'GET',
+                    processData: false,
                     statusCode: {
                         404: function () {
                             noRecordsFound();
                         }
                     },
                     success: function (data) {
-                        //if success store the forecast city data in dataObject
-                        // storeCurrentCityData(data,this.url)
-                        data.list.forEach(element => {
-                            // console.log(element.dt);
-                            let dt=new Date(parseInt(element.dt)*1000);
-                            dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' }) 
-                            element.humanreadabledate=dateTimeFormat.format(dt);
-                            dataObject.list.push(element);
-                        });
-                        // console.log(data);
+                        dataObject.uv = data.value;
                     }
+                }).then(function () {
+                    // get 5 day forcast
+                    $.ajax({
+                        url: buildUrl(apiName.forecast, dataObject.fullname),
+                        method: 'GET',
+                        processData: false,
+                        statusCode: {
+                            404: function () {
+                                noRecordsFound();
+                            }
+                        },
+                        success: function (data) {
+                            //on success store the forecast city data in dataObject
+
+                            data.list.forEach(element => {
+                                //convert the openweather date into human readable date    
+                                let dt = new Date(parseInt(element.dt) * 1000);
+                                dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' })
+                                element.humanreadabledate = dateTimeFormat.format(dt);
+                                // push the array to the dataObject
+                                dataObject.list.push(element);
+                            });                            
+                        }
+                    });
                 });
             });
-        });
-    }) 
-    // then get Ultraviolet Index
-    // .done(function(){
-        
-    //     getUVI(dataObject.fullname,dataObject.coord.lat,dataObject.coord.lon);
-    //     // alert("now calling 5dayforecast")
-    // })
-    // then get the 5 day forecast
-    // .done(function(){
-    //     // alert("about to get into 5 day forecast");
-    //     // console.log(dataObject);
-    //     console.log("full name :" + dataObject.fullname)
-    //     getFiveDayForecast(dataObject.fullname);
-    // })
-    .done(function(){
-        console.log(dataObject);
-    });
-    // .then(buildFullCityName)
-    //     .then(addToRecentSearches);
-    // function (data, statusText, xhr) {
-    //     console.log(data);
-    //     console.log(statusText, xhr.status);
-    //     dataObject = data;
-    //     if (xhr.status === 200) {
-    //         addToRecentSearches(data)
+        })
+        // At this point all data fetch is completed.
+        // now continue with UI rendering
+        .done(function () {
+            console.log(dataObject);
+        });    
+} // end of fetchWeatherData
 
-    //     }
-    //     else {
-    //         noRecordsFound();
-    //     }
-    // }).fail(function () {
-    //     noRecordsFound();
-    // });
-    // addToRecentSearches(dataObject);
-}
 /**
  * 
  * @param {string} api the api name to be used to build url. The values used are in apiName object
@@ -211,56 +174,51 @@ function buildUrl(api, searchCity, lat, lon) {
 function getUnit() {
     switch ($("input[name='unitgroup']:checked").val()) {
         case "standard":
-            return {name:"standard",queryString:""};
+            return { name: "standard", queryString: "" };
         case "metric":
-            return {name:"metric",queryString:"&units=metric"};
+            return { name: "metric", queryString: "&units=metric" };
         case "imperial":
-            return {name:"imperial",queryString:"&units=imperial"};
+            return { name: "imperial", queryString: "&units=imperial" };
     }
 }
 
 
-function storeCurrentCityData(data,url) {
-    // console.log(data);
+function storeCurrentCityData(data, url) {    
     dataObject.id = data.id;
     dataObject.name = data.name;
     dataObject.temp = data.main.temp;
     dataObject.pressure = data.main.pressure;
     dataObject.humidity = data.main.humidity;
     dataObject.windSpeed = data.wind.speed;
-    dataObject.url=url;
-    dataObject.unit=unit.name;
-    dataObject.coord.lat=data.coord.lat;
-    dataObject.coord.lon=data.coord.lon;
-    dataObject.iconUrl="http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
-    // dataObject.fullname=buildFullCityName(data);
-    // console.log(dataObject);
-    console.log("storing completed");
-    // buildFullCityName(data);
+    dataObject.url = url;
+    dataObject.unit = unit.name;
+    dataObject.coord.lat = data.coord.lat;
+    dataObject.coord.lon = data.coord.lon;
+    dataObject.iconUrl = "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png"; 
 }
 
-function getUVI(searchCity,lat,lon){
+function getUVI(searchCity, lat, lon) {
     $.ajax({
         url: buildUrl(apiName.ultraviolet, searchCity, lat, lon),
-        method: 'GET',        
-        processData:false,        
+        method: 'GET',
+        processData: false,
         statusCode: {
             404: function () {
                 noRecordsFound();
             }
         },
         success: function (data) {
-            dataObject.uv=data.value;
+            dataObject.uv = data.value;
         }
     });
 }
 
-function getFiveDayForecast(searchCity){
+function getFiveDayForecast(searchCity) {
     // alert(searchCity);
     $.ajax({
         url: buildUrl(apiName.forecast, searchCity),
-        method: 'GET',        
-        processData:false,        
+        method: 'GET',
+        processData: false,
         statusCode: {
             404: function () {
                 noRecordsFound();
@@ -271,15 +229,15 @@ function getFiveDayForecast(searchCity){
             // storeCurrentCityData(data,this.url)
             data.list.forEach(element => {
                 // console.log(element.dt);
-                let dt=new Date(parseInt(element.dt)*1000);
-                dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' }) 
-                element.humanreadabledate=dateTimeFormat.format(dt);
+                let dt = new Date(parseInt(element.dt) * 1000);
+                dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' })
+                element.humanreadabledate = dateTimeFormat.format(dt);
                 dataObject.list.push(element);
             });
             // console.log(data);
         }
     });
-    
+
 }
 
 function addToRecentSearches(data) {
@@ -324,7 +282,7 @@ function buildFullCityName(data) {
     //     async: false
     // });
     // dataObject = data;
-    let returnVal="";
+    let returnVal = "";
     $.ajax({
         url: "scripts/city.list.json",
         method: 'GET',
@@ -335,15 +293,15 @@ function buildFullCityName(data) {
             // let cityObject = cityList[index];
             if (cityObject.state === "") {
                 // dataObject.fullname = `${cityObject.name},${cityObject.country}`;
-                returnVal= `${cityObject.name},${cityObject.country}`;
+                returnVal = `${cityObject.name},${cityObject.country}`;
             }
             else {
                 // dataObject.fullname = `${cityObject.name},${cityObject.state},${cityObject.country}`;
-                returnVal= `${cityObject.name},${cityObject.state},${cityObject.country}`;
+                returnVal = `${cityObject.name},${cityObject.state},${cityObject.country}`;
             }
             // console.log("build full name completed");
         }
-    }).then(function(){
+    }).then(function () {
         return returnVal;
     });
     // return dataObject;
