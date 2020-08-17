@@ -51,7 +51,7 @@ function buildSearchData(e) {
     let sVal = $("#search").val();
     //clear search input
     $("#search").val("");
-    searchCity = sVal !== "" ? sVal : $(this).data('id').replace("_", ",");
+    searchCity = sVal !== "" ? sVal : $(this).data('id').replaceAll("_", ",");
     unit = getUnit();
     fetchWeatherData(searchCity)
 }
@@ -230,7 +230,7 @@ function addToRecentSearches() {
     //add to aside
     $("#searchHistoryNav").empty();
     searchHistory.forEach(element => {
-        let idText = element.name.replace(",", "_");
+        let idText = element.name.split(",").join("_");
         $cityBtn = $("<button>").html(`<span><img style='height:35px' src='${element.icon}'></img></span><span>${element.name}</span>`);
         $cityBtn.addClass("btn btn-primary btn-sm text-left");
         $cityBtn.attr("data-id", idText);
@@ -239,7 +239,9 @@ function addToRecentSearches() {
         dx.attr("id", "div_" + idText);
         dx.addClass("SearchHistorydiv");
         dx.append($cityBtn);
-        dx.append($("<button>").html('<i class="fa fa-trash"></i>').addClass("btn btn-default removebtn").attr("data-id", idText));
+        $btnRemove =$("<button>").html('<i class="fa fa-trash"></i>').addClass("btn btn-default removebtn").attr("data-id", idText);
+        $btnRemove.on("click",removeDiv)
+        dx.append($btnRemove);
 
         dx.hide().appendTo("#searchHistoryNav").fadeIn(600);
 
@@ -266,18 +268,47 @@ function addToRecentSearches() {
     // $cityBtnPill.attr("data-id", idText);
 
     // $cityBtnPill.hide().prependTo("#searchHistoryNavPills").fadeIn(2000);
-    let idText = searchHistory[0].name.replace(",", "_");
+    let idText = searchHistory[0].name.split(",").join("_");
     $("#searchHistoryNavPills").empty();
     $cityBtnPill = $("<button>").html(`<span><img style='height:35px' src='${searchHistory[0].icon}'></img></span><span>${searchHistory[0].name}</span>`);
     $cityBtnPill.addClass("btn btn-primary btn-sm");
     $cityBtnPill.attr("data-id", idText);
+    $cityBtnPill.attr("id", "btnPill_"+idText);
 
     $cityBtnPill.hide().prependTo("#searchHistoryNavPills").fadeIn(600);
 
     if (searchHistory.length > 1) {
         $("#btnRight").show();
     }
+    else{
+        $("#btnRight").hide();
+    }
 
+}
+
+function removeDiv(event){
+    event.stopPropagation();
+    divid=$(this).data().id
+    // divid = "div_"+ divid;
+    // alert(divid);
+    // $("#"+ divid).css("background-color","red");
+    $("#div_"+ divid).remove();
+    $("#btnPill_"+ divid).remove();
+    let idx = searchHistory.findIndex(e=> e.name === divid.split("_").join(","))
+    {
+        searchHistory.splice(idx,1);
+        if(searchHistory.length < 1){
+            $("#btnRight").hide()
+            return;
+        }
+    }
+    idx++;
+    if(idx >= searchHistory.length){
+        idx=0;
+    }
+    unit = getUnit();
+    fetchWeatherData(searchHistory[idx].name);
+    
 }
 
 function showPreviousSearchedItem() {

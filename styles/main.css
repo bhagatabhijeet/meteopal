@@ -219,13 +219,18 @@ aside{
     margin-right: auto;
 }
 .SearchHistorydiv{
-   width:80%;
-   border:2px #007bff solid;
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    width:80%;
+    border:2px #007bff solid;
    /* height: 25px; */
-   color:black;
-   margin:4px;
-   border-radius: 10px;
-   background-color: #007bff;
+    color:black;
+    margin:4px;
+    border-radius: 10px;
+    background-color: #007bff;
    /* border-bottom-right-radius: 10px; */
    
 }
