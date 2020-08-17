@@ -1,12 +1,14 @@
 
 let searchHistory = [];
 let searchHistoryPointer = 0;
-let dataObject;
+let unit={};
 // This object's clone will be used to create actual data.
-let templateObject = {
+let dataObject = {
+    cityId: "",
     cityName: "",
     iconUrl: "",
-    temperature: "",
+    temp: "",
+    pressure: "",
     humidity: "",
     windSpeed: "",
     uv: "",
@@ -15,13 +17,13 @@ let templateObject = {
     url: ""
 }
 
-let apiName={
+let apiName = {
     // used to build url for current city data
-    current:"CURRENT", 
+    current: "CURRENT",
     // used to build url for forecast city data with &cnt=5 (I am fetching data for only 5 days)
-    forecast:"FORECAST", 
+    forecast: "FORECAST",
     // used to build url for UVIndex for a city(using lat long)
-    ultraviolet:"ULTRAVIOLET" // 
+    ultraviolet: "ULTRAVIOLET" // 
 }
 
 
@@ -38,11 +40,12 @@ $(document).ready(function () {
 
 // var queryURL=`https://api.openweathermap.org/data/2.5/forecast/daily?q=${city}&cnt=5&appid=${apikey}`;
 
-// Eventhandler on click of searchButton and *** recent Searches buttons ***
+// // Eventhandler on click of searchButton and *** recent Searches buttons ***
 function buildSearchData(e) {
     event.preventDefault();
     let sVal = $("#search").val()
     searchCity = sVal !== "" ? sVal : $(this).data('id').replace("_", ",");
+    unit=getUnit();
     fetchWeatherData(searchCity)
 }
 
@@ -51,22 +54,30 @@ function fetchWeatherData(searchCity) {
 
     //Begin Fetching All Data
     // let city = $("#search").val();
-    alert(buildUrl(apiName.current,searchCity));
-    return;
+    // alert(buildUrl(apiName.current,searchCity));
+    // return;
 
-    let cityCurrentDataUrl = `${weatherAPIBaseUrl}/weather?q=${searchCity}&appid=${apikey}`;
-    var queryURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}`;
+    // let queryURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}`;
+    let queryURL = "";
+    //ajax call for current day
     $.ajax({
-        url: queryURL,
-        method: 'GET',
+        url: buildUrl(apiName.current, searchCity),
+        method: 'GET',        
+        processData:false,        
         statusCode: {
             404: function () {
-                alert("page not found");
+                noRecordsFound();
             }
         },
-        success: function () { alert("hurrah"); }
-    }).then(buildFullCityName)
-        .then(addToRecentSearches);
+        success: function (data) {
+            //if success store the current city data in dataObject
+            storeCurrentCityData(data,this.url)
+        }
+    }).then(function () {
+        buildFullCityName(dataObject);
+    });
+    // .then(buildFullCityName)
+    //     .then(addToRecentSearches);
     // function (data, statusText, xhr) {
     //     console.log(data);
     //     console.log(statusText, xhr.status);
@@ -83,42 +94,60 @@ function fetchWeatherData(searchCity) {
     // });
     // addToRecentSearches(dataObject);
 }
-
-function buildUrl(api,searchCity,lat,lon) {
+/**
+ * 
+ * @param {string} api the api name to be used to build url. The values used are in apiName object
+ * @param {string} searchCity the name or full name like 'Dublin,CA,us'
+ * @param {string} lat the string latitude of the location. Required for UVI api
+ * @param {string} lon the string longitude of the location. Required for UVI api
+ * @description utility function to build url
+ */
+function buildUrl(api, searchCity, lat, lon) {
     // Openweather.org base url
     // courtesy : https://openweathermap.org/
-    
+
     let weatherAPIBaseUrl = "https://api.openweathermap.org/data/2.5";
 
     //api key used to feth the data
     let apikey = '166a433c57516f51dfab1f7edaed8413';
 
-    if(api === "CURRENT"){
-        return  `${weatherAPIBaseUrl}/weather?q=${searchCity}&appid=${apikey}${getUnitValue()}` 
+    if (api === "CURRENT") {
+        return `${weatherAPIBaseUrl}/weather?q=${searchCity}&appid=${apikey}${unit.queryString}`
     }
-    if(api === "FORECAST"){
+    if (api === "FORECAST") {
         //NOTE:- &cnt=5 is used to get data for only 5 days
-        return  `${weatherAPIBaseUrl}/forecast/daily?q=${searchCity}&cnt=5&appid=${apikey}${getUnitValue()}` 
+        return `${weatherAPIBaseUrl}/forecast/daily?q=${searchCity}&cnt=5&appid=${apikey}${unit.queryString}`
     }
-    if(api === "ULTRAVIOLET"){
+    if (api === "ULTRAVIOLET") {
         //NOTE:-UVI API needs lat and lon of a location
-        return  `${weatherAPIBaseUrl}/uvi?lat=${lat}&lon=${lon}&appid=${apikey}` 
-    }   
+        return `${weatherAPIBaseUrl}/uvi?lat=${lat}&lon=${lon}&appid=${apikey}`
+    }
 
 }
-
-function getUnitValue() {
+/**
+ * @description utility function to get the value of units as specified by user
+ */
+function getUnit() {
     switch ($("input[name='unitgroup']:checked").val()) {
         case "standard":
-            return "";
+            return {name:"standard",queryString:""};
         case "metric":
-            return "&units=metric";
+            return {name:"metric",queryString:"&units=metric"};
         case "imperial":
-            return "&units=imperial"
+            return {name:"imperial",queryString:"&units=imperial"};
     }
 }
-function fetchCityCurrentData() {
-    //
+function storeCurrentCityData(data,url) {
+    console.log(data);
+    dataObject.id = data.id;
+    dataObject.cityName = data.name;
+    dataObject.temp = data.main.temp;
+    dataObject.pressure = data.main.pressure;
+    dataObject.humidity = data.main.humidity;
+    dataObject.windSpeed = data.wind.speed;
+    dataObject.url=url;
+    dataObject.unit=unit.name;
+    console.log(dataObject);
 }
 
 
@@ -159,19 +188,18 @@ function addToRecentSearches(data) {
 }
 
 function buildFullCityName(data) {
-    // alert(data.name);
-    // return;
-    $.ajaxSetup({
-        async: false
-    });
-    dataObject = data;
+
+    // $.ajaxSetup({
+    //     async: false
+    // });
+    // dataObject = data;
     $.ajax({
         url: "scripts/city.list.json",
         method: 'GET',
-        async: false,
+        // async: false,
         success: function (cityList) {
 
-            let cityObject = cityList.find(elment => elment.id === data.id);
+            let cityObject = cityList.find(elment => elment.id === dataObject.id);
             // let cityObject = cityList[index];
             if (cityObject.state === "") {
                 dataObject.fullname = `${cityObject.name},${cityObject.country}`;
@@ -181,7 +209,7 @@ function buildFullCityName(data) {
             }
         }
     });
-    return dataObject;
+    // return dataObject;
 }
 
 function showPreviousSearchedItem() {
