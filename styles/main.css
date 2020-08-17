@@ -1,9 +1,8 @@
 html{
     height:100%;
 }
+
 body{
-    /* background:linear-gradient(#f7f9fa 95%,#0288e8 3%,#3f72b0 3%,#012657 2%);
-    background-repeat: no-repeat; */
     background-color:#f7f9fa;
     width: 100%;
     animation-name: colorchange;
@@ -21,8 +20,8 @@ body{
  margin-left: 20%;
  margin-right: auto;  
  position: relative;
- /* margin-top: 50px; */
 }
+
 header{  
     display: flex; 
     width: 100%;
@@ -32,83 +31,51 @@ header{
     color:#f0f5f8;    
     justify-content: flex-start;
     align-items: top;
-    /* align-content:center; */
     flex-direction: row;
     flex-wrap: wrap;
 }
 
 input[type=radio]{
     margin-left: 10px;
-    /* margin-right:10px; */
 }
 
 .logoimgcontainer{
-    /* position: relative; */
-    /* display: inline-block; */
     width: 80px;
     height: 60px;
     vertical-align: middle;
-    /* margin: auto 0; */
 }
 
 #logoimg{
     display: inline-block;
-    /* position: fixed; */
-    /* left: 10px; */
-    /* top: 0; */
     width: 40px;
     height: 35px; 
     margin-left: 10px;
     border:1px solid #7db2fc;
     border-radius: 4px;
-    vertical-align: middle;
-    /* float: left; */
-    /* margin-top: auto;
-    margin-bottom: auto;
-    
-    align-self: center; */
+    vertical-align: middle;   
 }
 
 #pageloadvid {
-    position: fixed;
-    /* left: 20%; */
+    position: fixed;    
     top:0;
-    /* right: 0;
-    bottom: 0; */
     width: 100%    !important;
     height: 100%   !important;
-    /* border:4px solid whitesmoke;
-    border-radius: 20px; */
     margin-left: auto;
     margin-right: auto; 
     text-align: center; 
     z-index: 1;  
-    padding:0;
-    
+    padding:0;  
 }
-
 
 #htitle{
     width:80px;
-    display: inline-block;
-    /* height: 30px; */
+    display: inline-block;    
     font-size: 20px;
     width:50Px;
-    margin-right: 30px;
-    /* float: left; */
-    /* margin-top: auto;
-    margin-bottom: auto; */
+    margin-right: 30px;   
 }
 
-.search-container{
-    /* align-self:center; */
-    /* width: 240px; */
-    /* position: absolute; */
-    /* top:30px;
-    left:30%; */
-    /* margin-left: 60px; */
-    /* margin-left: auto auto; */
-    /* align-items: center; */
+.search-container{  
     background-color: #4487e4;
     height: 40px;
 }
@@ -117,24 +84,19 @@ input[type=radio]{
     position: relative;
     font-size: 15px;
     margin:0 0;
-    padding:0 0;
-    /* margin-left:20px; */
+    padding:0 0;    
     height: 20px;
-    /* width:230px; */
-    /* left:10%; */
     background-color: #6c757d;
     color:#7db2fc;
     font-weight: 400;
-    /* display: inline-block;
-    align-self: flex-end; */
 }
+
 .search-container form{
     position: relative;
     width: 70%;
     left:50%;
     margin-left: -25%;
     margin-right: auto;
-    /* position: relative; */
 }
 
 #search,datalist{
@@ -145,17 +107,9 @@ input[type=radio]{
     border-radius: 20px;
     border:none;
     outline:none
-    /* -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box; */
 }
 
-
 #searchIconButton{
-    /* position: relative; */
-    /* float: right; */
-    /* top:-30px;*/
-    /* right:-40px; */
     color:blue;
     background-color: black;
     width: 40px;
@@ -164,31 +118,15 @@ input[type=radio]{
     border:none;
     outline: none;
 }
+
 .recentSearches{
     background-color: black;
     color:#7db2fc;
-    height:45px;
-    
+    height:45px; 
     display:flex;
-    align-items: center;
-    /* width:100%; */
-    /* justify-content: space-between; */
-
-    /* display: flex; */
-    /* justify-content: space-between; */
-    /* width: 100%;
-    position: absolute;
-    top:100px; */
-}
-/* .recentSearchItemSpan{
-    width:400px;
-    display: inline-block;
-    border:1px solid white;
+    align-items: center;    
 }
 
-.nodisplaySpan{
-    display: none;
-} */
 #btnLeft,#btnRight{
     margin-left:5px;
     margin-right:5px;
@@ -198,19 +136,10 @@ aside{
     position: absolute;
     width:20%;
     height: 100%;
-    /* border:3px #f7f9fa groove; */
     margin-left: 10px;
     margin-top:10px;
     float: left;
-    /* background-color: #dbe0e9; */
 }
-/* #searchHistoryNav{
-    font-size: 15px;
-    width: 96%;
-    float: left;
-    color:black;
-   
-    /* position:fixed; */
 
 #searchHistoryNavPills{
     display: inline-block;
@@ -218,6 +147,7 @@ aside{
     margin-left: auto;
     margin-right: auto;
 }
+
 .SearchHistorydiv{
     display:flex;
     flex-direction: row;
@@ -226,37 +156,29 @@ aside{
     align-content: center;
     width:80%;
     border:2px #007bff solid;
-   /* height: 25px; */
     color:black;
     margin:4px;
     border-radius: 10px;
-    background-color: #007bff;
-   /* border-bottom-right-radius: 10px; */
-   
+    background-color: #007bff;  
 }
 
 .SearchHistorydiv .btn-sm{
     width:70%;
     font-size: 12px;
-
 }
+
 .removebtn{
     border:1px solid whitesmoke;
     border-radius: 50%;
     margin:4px;
-    color:whitesmoke;
-    
+    color:whitesmoke;    
 }
 
 #searchHistoryNavPills .btn-sm{
-    /* margin: 10px 4px;  */
     height:30px;
-    /* margin-bottom: auto;; */
    width:100% !important;
    text-align:center;
    padding-top: 0;
-   /* margin:auto auto; */
-   /* margin-top:5px; */
 }
 
 #messagediv{
@@ -267,13 +189,12 @@ aside{
     display: none;
     position: absolute;
     top:90px;    
-    /* margin-right: auto; */
     text-align: center;
     left:50%;
     margin-left: -25%; 
     font-weight: 400;
-
 }
+
 #forecastCardsContainer{
     display: flex;
     flex-direction: row;
@@ -301,17 +222,11 @@ aside{
     color:whitesmoke;
     font-size:12px;
 }
+
 .card-header{
     background-color: #5d656e;
     color:whitesmoke;
-    /* height: 50px; */
 }
-/*
-.wrapper {
-    display: flex;
-    width: 100%;
-    align-items: stretch;
-} */
 
 
 @media only screen and (max-width:767px){
@@ -320,21 +235,18 @@ aside{
         margin-left: auto;
         margin-right: auto;
         text-align: center;
-        /* -webkit-box-sizing: border-box;
-           -moz-box-sizing: border-box;
-                box-sizing: border-box; */
     }
+
     aside{
         display: none;
     }
+
     .container{
         width: 90%; 
         margin-left: auto;
         margin-right: auto;  
         position: relative;
-        /* margin-top: 50px; */
-       }
-
     }
+}
 
 
