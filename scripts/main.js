@@ -197,49 +197,6 @@ function storeCurrentCityData(data, url) {
     dataObject.iconUrl = "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png"; 
 }
 
-function getUVI(searchCity, lat, lon) {
-    $.ajax({
-        url: buildUrl(apiName.ultraviolet, searchCity, lat, lon),
-        method: 'GET',
-        processData: false,
-        statusCode: {
-            404: function () {
-                noRecordsFound();
-            }
-        },
-        success: function (data) {
-            dataObject.uv = data.value;
-        }
-    });
-}
-
-function getFiveDayForecast(searchCity) {
-    // alert(searchCity);
-    $.ajax({
-        url: buildUrl(apiName.forecast, searchCity),
-        method: 'GET',
-        processData: false,
-        statusCode: {
-            404: function () {
-                noRecordsFound();
-            }
-        },
-        success: function (data) {
-            //if success store the forecast city data in dataObject
-            // storeCurrentCityData(data,this.url)
-            data.list.forEach(element => {
-                // console.log(element.dt);
-                let dt = new Date(parseInt(element.dt) * 1000);
-                dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' })
-                element.humanreadabledate = dateTimeFormat.format(dt);
-                dataObject.list.push(element);
-            });
-            // console.log(data);
-        }
-    });
-
-}
-
 function addToRecentSearches(data) {
     //build and Add one more property named fullCityName to the object
     //makes use of *** city.list.json *** in scripts directory
