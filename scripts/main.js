@@ -233,37 +233,6 @@ function addToRecentSearches(data) {
     searchHistoryPointer++;
 }
 
-function buildFullCityName(data) {
-
-    // $.ajaxSetup({
-    //     async: false
-    // });
-    // dataObject = data;
-    let returnVal = "";
-    $.ajax({
-        url: "scripts/city.list.json",
-        method: 'GET',
-        // async: false,
-        success: function (cityList) {
-
-            let cityObject = cityList.find(elment => elment.id === data.id);
-            // let cityObject = cityList[index];
-            if (cityObject.state === "") {
-                // dataObject.fullname = `${cityObject.name},${cityObject.country}`;
-                returnVal = `${cityObject.name},${cityObject.country}`;
-            }
-            else {
-                // dataObject.fullname = `${cityObject.name},${cityObject.state},${cityObject.country}`;
-                returnVal = `${cityObject.name},${cityObject.state},${cityObject.country}`;
-            }
-            // console.log("build full name completed");
-        }
-    }).then(function () {
-        return returnVal;
-    });
-    // return dataObject;
-}
-
 function showPreviousSearchedItem() {
     if (searchHistoryPointer === searchHistory.length - 1) {
         return;
