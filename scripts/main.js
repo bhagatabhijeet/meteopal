@@ -58,8 +58,7 @@ $(document).ready(function () {
     $("#btnRight").hide();
 
     //event handlers
-    $("#searchIconButton").on("click", buildSearchData);
-    $("#btnLeft").on("click", showPreviousSearchedItem);
+    $("#searchIconButton").on("click", buildSearchData);    
     $("#btnRight").on("click", showNextSearchedItem);
 
     // on page load get the city from local storage and search
