@@ -60,6 +60,11 @@ $(document).ready(function () {
     $("#searchIconButton").on("click", buildSearchData);
     $("#btnLeft").on("click", showPreviousSearchedItem);
     $("#btnRight").on("click", showNextSearchedItem);
+    let lastSearchedCity =localStorage.getItem("meteopalLastSearchCity");
+    if(lastSearchedCity !== null){
+        unit = getUnit();
+        fetchWeatherData(lastSearchedCity);
+    }
 });
 
 
@@ -152,6 +157,7 @@ function fetchWeatherData(searchCity) { // Start of fetchWeatherData
                         // At this point all data fetch is completed.
                         // now continue with UI rendering
                         .done(function () {
+                            localStorage.setItem("meteopalLastSearchCity",dataObject.fullname);
                             addToRecentSearches();
                             showCityInfo();
                             showForeCast();
@@ -324,6 +330,8 @@ function removeDiv(event){
         searchHistory.splice(idx,1);
         if(searchHistory.length < 1){
             $("#btnRight").hide()
+            $("#forecastCardsContainer").empty();
+            $("#cityInfo").css("display","none");
             return;
         }
     }
