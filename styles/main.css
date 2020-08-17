@@ -18,7 +18,7 @@ body{
 
 .container{
  width: 70%; 
- margin-left: 30%;
+ margin-left: 20%;
  margin-right: auto;  
  position: relative;
  /* margin-top: 50px; */
@@ -270,6 +270,14 @@ aside{
     margin-left: -25%; 
     font-weight: 400;
 
+}
+
+#cityInfo{
+    display: none;
+}
+
+.card-header{
+    background-color: #9dc6ff;
 }
 /*
 .wrapper {

@@ -16,6 +16,7 @@ let dataObject = {
     coord: { lat: 0, lon: 0 },
     unit: "",
     url: "",
+    humanreadabledate:"",
     list: []
 }
 
@@ -134,6 +135,7 @@ function fetchWeatherData(searchCity) { // Start of fetchWeatherData
                         // now continue with UI rendering
                         .done(function () {
                             addToRecentSearches();
+                            showCityInfo();
                             console.log(dataObject);
                         });
                 });
@@ -199,6 +201,9 @@ function storeCurrentCityData(data, url) {
     dataObject.coord.lat = data.coord.lat;
     dataObject.coord.lon = data.coord.lon;
     dataObject.iconUrl = "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
+    let dt = new Date(parseInt(data.dt) * 1000);
+    dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' })
+    dataObject.humanreadabledate = dateTimeFormat.format(dt);
 }
 
 function addToRecentSearches() {
@@ -369,6 +374,57 @@ searchHistoryPointer++;
 
     // $("#searchHistoryNavPills").prepend($cityRecent).show(1000);
 
+}
+function showCityInfo(){
+    $("#cityNameDateImage").html("<img src='"+ dataObject.iconUrl + "'/> " + " <strong>" + dataObject.fullname + " ("+ dataObject.humanreadabledate +")</strong>");
+    $("#cityTemp").html(dataObject.temp + getUnitValue("temp"));
+    $("#cityWind").html(dataObject.windSpeed + getUnitValue("speed"));
+    $("#cityHumidity").html(dataObject.humidity + "%")
+    if(parseFloat(dataObject.uv)<=2){
+        $("#cityUV").css("background-color","green");
+    }
+    if(parseFloat(dataObject.uv)>2 && parseFloat(dataObject.uv)<=5){
+        $("#cityUV").css("background-color","yellow");
+    }
+    if(parseFloat(dataObject.uv)>5 && parseFloat(dataObject.uv)<=7){
+        $("#cityUV").css("background-color","orange");
+    }
+    if(parseFloat(dataObject.uv)>7 && parseFloat(dataObject.uv)<=10){
+        $("#cityUV").css("background-color","red");
+    }
+    if(parseFloat(dataObject.uv)>10){
+        $("#cityUV").css("background-color","purple");
+    }
+
+    $("#cityUV").html(dataObject.uv)
+    $("#cityInfo").css("display","block");
+}
+
+function getUnitValue(param){
+    if(param.toUpperCase() === "SPEED"){
+        if(dataObject.unit==="standard" || dataObject.unit==="metric" )
+        {
+            return " meter/sec";
+        }
+        else
+        {
+            return " miles/hour";
+        }
+    }
+    if(param.toUpperCase() === "TEMP"){
+        if(dataObject.unit==="standard")
+        {
+            return " &deg;K";
+        }
+        if(dataObject.unit==="metric")
+        {
+            return " &deg;C";
+        }
+        if(dataObject.unit==="imperial")
+        {
+            return " &deg;F";
+        }
+    }
 }
 
 //Utility function to be shown when there are no records found.
