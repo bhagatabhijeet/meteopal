@@ -28,7 +28,7 @@ let apiName = {
     forecast: "FORECAST",
 
     // used to build url for UVIndex for a city(using lat long)
-    ultraviolet: "ULTRAVIOLET" 
+    ultraviolet: "ULTRAVIOLET"
 }
 
 
@@ -36,6 +36,8 @@ $(document).ready(function () {
     //page load animation - This play a small video on page load and fadeout in 3s
     $("#pageloadvid").fadeOut(3000);
 
+    $("#btnLeft").hide();
+    $("#btnRight").hide();
     //event handlers
     $("#searchIconButton").on("click", buildSearchData);
     $("#btnLeft").on("click", showPreviousSearchedItem);
@@ -46,7 +48,9 @@ $(document).ready(function () {
 // Eventhandler on click of searchButton and *** recent Searches buttons ***
 function buildSearchData(e) {
     event.preventDefault();
-    let sVal = $("#search").val()
+    let sVal = $("#search").val();
+    //clear search input
+    $("#search").val("");
     searchCity = sVal !== "" ? sVal : $(this).data('id').replace("_", ",");
     unit = getUnit();
     fetchWeatherData(searchCity)
@@ -89,8 +93,7 @@ function fetchWeatherData(searchCity) { // Start of fetchWeatherData
                         dataObject.fullname = `${cityObject.name},${cityObject.state},${cityObject.country}`;
                     }
                 }
-            }).then(function () {
-                // get the UVI index
+            }).then(function (cityList) {
                 $.ajax({
                     url: buildUrl(apiName.ultraviolet, dataObject.fullname, dataObject.coord.lat, dataObject.coord.lon),
                     method: 'GET',
@@ -124,17 +127,18 @@ function fetchWeatherData(searchCity) { // Start of fetchWeatherData
                                 element.humanreadabledate = dateTimeFormat.format(dt);
                                 // push the array to the dataObject
                                 dataObject.list.push(element);
-                            });                            
+                            });
                         }
-                    });
+                    })
+                        // At this point all data fetch is completed.
+                        // now continue with UI rendering
+                        .done(function () {
+                            addToRecentSearches();
+                            console.log(dataObject);
+                        });
                 });
             });
         })
-        // At this point all data fetch is completed.
-        // now continue with UI rendering
-        .done(function () {
-            console.log(dataObject);
-        });    
 } // end of fetchWeatherData
 
 /**
@@ -183,7 +187,7 @@ function getUnit() {
 }
 
 
-function storeCurrentCityData(data, url) {    
+function storeCurrentCityData(data, url) {
     dataObject.id = data.id;
     dataObject.name = data.name;
     dataObject.temp = data.main.temp;
@@ -194,69 +198,145 @@ function storeCurrentCityData(data, url) {
     dataObject.unit = unit.name;
     dataObject.coord.lat = data.coord.lat;
     dataObject.coord.lon = data.coord.lon;
-    dataObject.iconUrl = "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png"; 
+    dataObject.iconUrl = "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
 }
 
-function addToRecentSearches(data) {
+function addToRecentSearches() {
     //build and Add one more property named fullCityName to the object
     //makes use of *** city.list.json *** in scripts directory
     // buildFullCityName(data);
     // data = dataObject;
     // alert(data.fullname);
 
-    //add to array
-    searchHistory.unshift(data);
+    //add to array 
+    let idx = searchHistory.findIndex(e => e.name === dataObject.fullname);
+    if (idx === -1) {
+        searchHistory.unshift({ name: dataObject.fullname, icon: dataObject.iconUrl });
+    }
+    // if(!searchHistory.includes(dataObject.fullname)){   
+    //     searchHistory.unshift(dataObject.fullname);
+    // }
+    else {
+        searchHistory.splice(idx, 1);
+        searchHistory.unshift({ name: dataObject.fullname, icon: dataObject.iconUrl });
+        // return;
+    }
 
     //add to optionlist
-    let opt = $("<Option>").text(data.fullname);
-    $("#optionlist").append(opt);
+
+    // let opt = $("<Option>").text(dataObject.fullname);
+    // $("#optionlist").append(opt);
 
     //add to aside
+    $("#searchHistoryNav").empty();
+    searchHistory.forEach(element => {
+        let idText = element.name.replace(",", "_");
+        $cityBtn = $("<button>").html(`<span><img style='height:35px' src='${element.icon}'></img></span><span>${element.name}</span>`);
+        $cityBtn.addClass("btn btn-primary btn-sm text-left");
+        $cityBtn.attr("data-id", idText);
 
-    $cityTemp = $("<button>").html("<span><img style='height:35px' src='http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png'></img></span><span>" + data.fullname + "</span>");
-    $cityTemp.addClass("btn btn-primary btn-sm text-left");
-    let dx = $("<div>").append($("<button>").html('<i class="fa fa-trash"></i>').addClass("btn btn-defaul"));
-    dx.append($cityTemp);
-    $("#searchHistoryNav").prepend(dx).show(3000);
+        let dx = $("<div>");
+        dx.attr("id", "div_" + idText);
+        dx.addClass("SearchHistorydiv");
+        dx.append($cityBtn);
+        dx.append($("<button>").html('<i class="fa fa-trash"></i>').addClass("btn btn-default removebtn").attr("data-id", idText));
 
-    // $cityTemp.hide().prependTo("#searchHistoryNav").fadeIn(4000);
-    // $("#searchHistoryNav").prepend($cityTemp.show(6000));
+        dx.hide().appendTo("#searchHistoryNav").fadeIn(600);
+
+
+    });
+    // let idText = dataObject.fullname.replace(",", "_");
+    // $cityBtn = $("<button>").html(`<span><img style='height:35px' src='${dataObject.iconUrl}'></img></span><span>${dataObject.fullname}</span>`);
+    // $cityBtn.addClass("btn btn-primary btn-sm text-left");
+    // $cityBtn.attr("data-id", idText);
+
+    // let dx = $("<div>");
+    // dx.attr("id", "div_" + idText);
+    // dx.addClass("SearchHistorydiv");
+    // dx.append($cityBtn);
+    // dx.append($("<button>").html('<i class="fa fa-trash"></i>').addClass("btn btn-default removebtn").attr("data-id", idText));
+
+    // dx.hide().prependTo("#searchHistoryNav").fadeIn(2000);
+
 
     //add to nav pills
+    // $("#searchHistoryNavPills").empty();
+    // $cityBtnPill = $("<button>").html(`<span><img style='height:35px' src='${dataObject.iconUrl}'></img></span><span>${dataObject.fullname}</span>`);
+    // $cityBtnPill.addClass("btn btn-primary btn-sm");
+    // $cityBtnPill.attr("data-id", idText);
 
+    // $cityBtnPill.hide().prependTo("#searchHistoryNavPills").fadeIn(2000);
+    let idText = searchHistory[0].name.replace(",", "_");
     $("#searchHistoryNavPills").empty();
-    $cityRecent = $("<button>").html("<span><img style='height:25px' src='http://openweathermap.org/img/wn/" + searchHistory[0].weather[0].icon + "@2x.png'></img></span><span>" + searchHistory[0].fullname + "</span>");
-    $cityRecent.addClass("btn btn-primary btn-sm");
+    $cityBtnPill = $("<button>").html(`<span><img style='height:35px' src='${searchHistory[0].icon}'></img></span><span>${searchHistory[0].name}</span>`);
+    $cityBtnPill.addClass("btn btn-primary btn-sm");
+    $cityBtnPill.attr("data-id", idText);
 
+    $cityBtnPill.hide().prependTo("#searchHistoryNavPills").fadeIn(600);
 
-    $("#searchHistoryNavPills").prepend($cityRecent);
-    searchHistoryPointer++;
+    if (searchHistory.length > 1) {
+        $("#btnRight").show();
+    }
+
 }
 
 function showPreviousSearchedItem() {
-    if (searchHistoryPointer === searchHistory.length - 1) {
-        return;
-    }
     searchHistoryPointer++;
+    if (searchHistoryPointer === searchHistory.length - 1) {
+        $("#btnLeft").hide();
+    }
+    if (searchHistoryPointer > 0) {
+        $("#btnRight").show();
+    }
+
     $("#searchHistoryNavPills").empty();
-    $cityRecent = $("<button>").html("<span><img style='height:25px' src='http://openweathermap.org/img/wn/" + searchHistory[searchHistoryPointer].weather[0].icon + "@2x.png'></img></span><span>" + searchHistory[searchHistoryPointer].name + "</span>");
-    $cityRecent.addClass("btn btn-primary btn-sm");
-
-
-    $("#searchHistoryNavPills").prepend($cityRecent).show(1000);
+    unit = getUnit();
+    fetchWeatherData(searchHistory[searchHistoryPointer].name);
+    // searchHistoryPointer=0;
+    // let idText = dataObject.fullname.replace(",", "_");
+    // $cityBtnPill = $("<button>").html(`<span><img style='height:35px' src='${dataObject.iconUrl}'></img></span><span>${dataObject.fullname}</span>`);
+    // $cityBtnPill.addClass("btn btn-primary btn-sm");
+    // $cityBtnPill.attr("data-id", idText);
+    // $cityBtnPill.hide().prependTo("#searchHistoryNavPills").fadeIn(1000);
 
 }
 function showNextSearchedItem() {
-    if (searchHistoryPointer === 0) {
-        return;
+
+// trying 
+searchHistoryPointer++;
+    // if (searchHistoryPointer === searchHistory.length - 1) {
+    //     $("#btnLeft").hide();
+    // }
+    // if (searchHistoryPointer > 0) {
+    //     $("#btnRight").show();
+    // }
+    if(searchHistoryPointer > (searchHistory.length - 1))
+    {
+        searchHistoryPointer=1;        
     }
-    searchHistoryPointer--;
+
     $("#searchHistoryNavPills").empty();
-    $cityRecent = $("<button>").html("<span><img style='height:25px' src='http://openweathermap.org/img/wn/" + searchHistory[searchHistoryPointer].weather[0].icon + "@2x.png'></img></span><span>" + searchHistory[searchHistoryPointer].name + "</span>");
-    $cityRecent.addClass("btn btn-primary btn-sm");
+    unit = getUnit();
+    fetchWeatherData(searchHistory[searchHistoryPointer].name);
 
 
-    $("#searchHistoryNavPills").prepend($cityRecent).show(1000);
+//trying above
+
+ /* recently commented   
+    searchHistoryPointer--;
+    if (searchHistoryPointer === 0) {
+        // return;
+        $("#btnRight").hide();
+    }
+    $("#searchHistoryNavPills").empty();
+    unit = getUnit();
+    fetchWeatherData(searchHistory[searchHistoryPointer].name);
+*/
+    // $cityRecent = $("<button>").html("<span><img style='height:25px' src='http://openweathermap.org/img/wn/" + searchHistory[searchHistoryPointer].weather[0].icon + "@2x.png'></img></span><span>" + searchHistory[searchHistoryPointer].name + "</span>");
+    // $cityRecent.addClass("btn btn-primary btn-sm");
+
+
+    // $("#searchHistoryNavPills").prepend($cityRecent).show(1000);
 
 }
 

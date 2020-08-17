@@ -18,7 +18,7 @@ body{
 
 .container{
  width: 70%; 
- margin-left: 20%;
+ margin-left: 30%;
  margin-right: auto;  
  position: relative;
  /* margin-top: 50px; */
@@ -196,7 +196,7 @@ input[type=radio]{
 
 aside{
     position: absolute;
-    width:18%;
+    width:20%;
     height: 100%;
     /* border:3px #f7f9fa groove; */
     margin-left: 10px;
@@ -219,11 +219,27 @@ aside{
     margin-right: auto;
 }
 .SearchHistorydiv{
-   width:100%;
-   border:1px rgb(214, 212, 212) solid;
-   height: 25px;
-   color:black
+   width:80%;
+   border:2px #007bff solid;
+   /* height: 25px; */
+   color:black;
+   margin:4px;
+   border-radius: 10px;
+   background-color: #007bff;
+   /* border-bottom-right-radius: 10px; */
+   
+}
 
+.SearchHistorydiv .btn-sm{
+    width:70%;
+    font-size: 12px;
+}
+.removebtn{
+    border:1px solid whitesmoke;
+    border-radius: 50%;
+    margin:4px;
+    color:whitesmoke;
+    
 }
 
 #searchHistoryNavPills .btn-sm{
