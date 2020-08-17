@@ -17,7 +17,24 @@ let dataObject = {
     unit: "",
     url: "",
     humanreadabledate:"",
-    list: []
+    list: [],
+    reset:function(){
+        this.fullname= "";
+        this.id= ""
+        this.name= "";
+        this.iconUrl= "";
+        this.temp= "";
+        this.pressure= "";
+        this.humidity= "";
+        this.windSpeed= "";
+        this.uv= "";
+        this.coord.lat=0;
+        this.coord.lon=0;
+        this.unit= "";
+        this.url= "";
+        this.humanreadabledate="";
+        this.list=[];
+    }
 }
 
 // apiName object acts like enum. This is created just to ease typing and avoid string mistakes
@@ -59,6 +76,7 @@ function buildSearchData(e) {
 
 // Fetch all required data
 function fetchWeatherData(searchCity) { // Start of fetchWeatherData
+    dataObject.reset();
     let queryURL = "";
     //ajax call for current day
     $.ajax({
@@ -136,6 +154,7 @@ function fetchWeatherData(searchCity) { // Start of fetchWeatherData
                         .done(function () {
                             addToRecentSearches();
                             showCityInfo();
+                            showForeCast();
                             console.log(dataObject);
                         });
                 });
@@ -239,6 +258,7 @@ function addToRecentSearches() {
         $cityBtn = $("<button>").html(`<span><img style='height:35px' src='${element.icon}'></img></span><span>${element.name}</span>`);
         $cityBtn.addClass("btn btn-primary btn-sm text-left");
         $cityBtn.attr("data-id", idText);
+        $cityBtn.on("click",historySearchButtonClicked)
 
         let dx = $("<div>");
         dx.attr("id", "div_" + idText);
@@ -279,7 +299,7 @@ function addToRecentSearches() {
     $cityBtnPill.addClass("btn btn-primary btn-sm");
     $cityBtnPill.attr("data-id", idText);
     $cityBtnPill.attr("id", "btnPill_"+idText);
-
+    $cityBtnPill.on("click",historySearchButtonClicked);
     $cityBtnPill.hide().prependTo("#searchHistoryNavPills").fadeIn(600);
 
     if (searchHistory.length > 1) {
@@ -314,6 +334,14 @@ function removeDiv(event){
     unit = getUnit();
     fetchWeatherData(searchHistory[idx].name);
     
+}
+
+function historySearchButtonClicked(event){
+    event.stopPropagation();
+    divid=$(this).data().id;
+    let idx = searchHistory.findIndex(e=> e.name === divid.split("_").join(","));
+    unit = getUnit();
+    fetchWeatherData(searchHistory[idx].name);
 }
 
 function showPreviousSearchedItem() {
@@ -398,6 +426,8 @@ function showCityInfo(){
 
     $("#cityUV").html(dataObject.uv)
     $("#cityInfo").css("display","block");
+    
+   
 }
 
 function getUnitValue(param){
@@ -425,6 +455,62 @@ function getUnitValue(param){
             return " &deg;F";
         }
     }
+}
+
+function showForeCast(){
+//    $("#day1").remove();
+//    $("#day2").remove();
+//    $("#day3").remove();
+//    $("#day4").remove();
+//    $("#day5").remove();
+    $("#forecastCardsContainer").empty();
+    
+    for(let i=1;i<dataObject.list.length;i++){
+        let d =$("<div>");
+        d.addClass("card smallcard");
+        d.attr("id","day"+i);
+        
+        let $img=$("<img>")
+        $img.addClass("card-img-top");
+        $img.attr("src","http://openweathermap.org/img/wn/" + dataObject.list[i].weather[0].icon + "@2x.png");
+        
+        $cardbody=$("<div>");
+        $cardbody.addClass("card-body");
+
+        $h5=$("<h5>");
+        $h5.addClass("card-title");
+        $h5.html(dataObject.list[i].humanreadabledate);
+
+        $p1=$("<p>");
+        $p1.addClass("card-text");
+        $p1.html("Temperature : " + dataObject.list[i].temp.day + getUnitValue("temp"));
+
+        $p2=$("<p>");
+        $p2.addClass("card-text");
+        $p2.html("Humidity : " + dataObject.list[i].humidity + "%");
+
+        $p3=$("<p>");
+        $p3.addClass("card-text");
+        $p3.html("Wind Speed : " + dataObject.list[i].speed + getUnitValue("speed"));
+
+        $cardbody.append($h5,$p1,$p2,$p3);
+        d.append($img,$cardbody);
+
+        $("#forecastCardsContainer").append(d);
+
+    }
+    // dataObject.list.forEach(element=>{
+    //     let $div = $("<div>");
+    //     $div.html('<div class="card" style="width: 7rem;">' +
+    //     '<img class="card-img-top" src="..." alt="Card image cap">'+
+    //     '<div class="card-body">'+
+    //       '<h5 class="card-title">Card title</h5>'+
+    //       '<p class="card-text">Some quick example text to build on the card title and make up the bulk of the cards content.</p>'+
+    //       '<a href="#" class="btn btn-primary">Go somewhere</a>' +
+    //     '</div>'+
+    //   '</div>');
+    //     $("#forecastCardsContainer").append($div);
+    // })
 }
 
 //Utility function to be shown when there are no records found.

@@ -238,6 +238,7 @@ aside{
 .SearchHistorydiv .btn-sm{
     width:70%;
     font-size: 12px;
+
 }
 .removebtn{
     border:1px solid whitesmoke;
@@ -249,9 +250,11 @@ aside{
 
 #searchHistoryNavPills .btn-sm{
     /* margin: 10px 4px;  */
-    /* height:10px; */
+    height:30px;
     /* margin-bottom: auto;; */
    width:100% !important;
+   text-align:center;
+   padding-top: 0;
    /* margin:auto auto; */
    /* margin-top:5px; */
 }
@@ -271,13 +274,37 @@ aside{
     font-weight: 400;
 
 }
+#forecastCardsContainer{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
 
 #cityInfo{
     display: none;
 }
 
+.card-img-top{
+    height: 40px;
+    width:40px;
+}
+
+.card{
+    background-color: #007bff;
+    margin-top:40px;
+}
+
+.smallcard{
+    width:160px;
+    margin:5px;
+    color:whitesmoke;
+    font-size:12px;
+}
 .card-header{
-    background-color: #9dc6ff;
+    background-color: #5d656e;
+    color:whitesmoke;
+    /* height: 50px; */
 }
 /*
 .wrapper {
