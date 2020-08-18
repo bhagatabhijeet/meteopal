@@ -400,9 +400,11 @@ function showForeCast() {
         d.addClass("card smallcard");
         d.attr("id", "day" + i);
 
-        let $img = $("<img>")
-        $img.addClass("card-img-top");
-        $img.attr("src", "https://openweathermap.org/img/w/" + dataObject.list[i].weather[0].icon + ".png");
+        let $cardHeader = $("<div>");
+        $cardHeader.addClass("card-header");
+        $cardHeader.html("<img src='https://openweathermap.org/img/w/" + 
+        dataObject.list[i].weather[0].icon + ".png'/> " + 
+        " <strong>" + dataObject.fullname + "</strong>");        
 
         $cardbody = $("<div>");
         $cardbody.addClass("card-body");
@@ -424,7 +426,7 @@ function showForeCast() {
         $p3.html("Wind Speed : " + dataObject.list[i].speed + getUnitValue("speed"));
 
         $cardbody.append($h5, $p1, $p2, $p3);
-        d.append($img, $cardbody);
+        d.append($cardHeader, $cardbody);
 
         $("#forecastCardsContainer").append(d);
 

@@ -217,15 +217,16 @@ aside{
 }
 
 .smallcard{
-    width:160px;
+    width:178px;
     margin:5px;
     color:whitesmoke;
     font-size:12px;
 }
 
 .card-header{
-    background-color: #5d656e;
+    background-color: #007bff;
     color:whitesmoke;
+    text-align: center;
 }
 
 
