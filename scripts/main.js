@@ -232,7 +232,7 @@ function storeCurrentCityData(data, url) {
     dataObject.unit = unit.name;
     dataObject.coord.lat = data.coord.lat;
     dataObject.coord.lon = data.coord.lon;
-    dataObject.iconUrl = "https://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
+    dataObject.iconUrl = "https://openweathermap.org/img/w/" + data.weather[0].icon + ".png";
     let dt = new Date(parseInt(data.dt) * 1000);
     dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' })
     dataObject.humanreadabledate = dateTimeFormat.format(dt);
@@ -402,7 +402,7 @@ function showForeCast() {
 
         let $img = $("<img>")
         $img.addClass("card-img-top");
-        $img.attr("src", "https://openweathermap.org/img/wn/" + dataObject.list[i].weather[0].icon + "@2x.png");
+        $img.attr("src", "https://openweathermap.org/img/w/" + dataObject.list[i].weather[0].icon + ".png");
 
         $cardbody = $("<div>");
         $cardbody.addClass("card-body");
