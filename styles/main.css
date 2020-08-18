@@ -263,6 +263,8 @@ aside{
     background-color: #007bff;
     color:whitesmoke;
     text-align: center;
+    height: 45px;  
+    padding-top: 0;
 }
 
 
