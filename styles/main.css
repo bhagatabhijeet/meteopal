@@ -209,6 +209,15 @@ aside{
     margin-left:15px;
 }
 
+#label5{
+    width:100%;
+    text-align: center;
+    background-color: black;
+    font-size: 20px;
+    font-weight: 400;
+    color:#4f71a0;
+    display: none;
+}
 
 .list-group-item{
     font-size: 18px;
@@ -227,6 +236,10 @@ aside{
 
 #cityInfo{
     display: none;
+}
+#cityInfo .card-header{
+    height: 40px;  
+    padding-top: 0;
 }
 
 .card-img-top{

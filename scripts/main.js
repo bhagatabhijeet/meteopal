@@ -304,6 +304,7 @@ function removeDiv(event) {
             $("#btnRight").hide()
             $("#forecastCardsContainer").empty();
             $("#cityInfo").css("display", "none");
+            $("#label5").css("display","none");
             return;
         }
     }
@@ -365,6 +366,7 @@ function showCityInfo() {
 
     $("#cityUV").html(dataObject.uv)
     $("#cityInfo").css("display", "block");
+    $("#label5").css("display","block");
 }
 
 // Utility function to get the unit strings This is to keep the code DRY and avoid repeating the following in every function.
