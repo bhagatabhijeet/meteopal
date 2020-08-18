@@ -202,6 +202,14 @@ aside{
     justify-content: space-evenly;
 }
 
+#cityTemp,
+#cityWind,
+#cityHumidity,
+#cityUV{
+    margin-left:15px;
+}
+
+
 .list-group-item{
     font-size: 18px;
 }
