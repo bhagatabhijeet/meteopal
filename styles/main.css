@@ -202,6 +202,21 @@ aside{
     justify-content: space-evenly;
 }
 
+.list-group-item{
+    font-size: 18px;
+}
+
+.list-group-item #cityUV{
+    border:none;
+    color:whitesmoke;
+    text-align: center;
+    font-size: 22px;
+    padding-left: 20px;
+    padding-right: 20px;
+    
+    border-radius: 10px;
+}
+
 #cityInfo{
     display: none;
 }
